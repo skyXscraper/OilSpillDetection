@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<title>Varunet - Spill Scan Archive</title>
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+
+  </head>
+    <body>
+        <div class="bg">
+          <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.82/build/spline-viewer.js"></script>
+          <spline-viewer url="https://prod.spline.design/iDk9lHeOFHnhPuiA/scene.splinecode"></spline-viewer>
+        <div class="fg">
+            <nav class="navbar"> 
+            <div class="lol">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" class="logo"></img>        
+            <a class="title">Varunet</a>
+            </div>
+            <ul class="nav-links">
+              <li><a href="{{ url_for('home') }}">Home</a></li>
+              <li><a href="{{ url_for('history') }}">History</a></li>
+              <li><a href="{{ url_for('about') }}">About</a></li>
+          </ul>
+          </nav>
+        
+     <h1> Spill Scan Archive </h1>
+     <a class="microcopy">Every drop matters,<br>
+        every scan recorded.</a>
+        <div class="grid-container">
+          <div class="not-found"><img src="{{ url_for('static', filename='images/1.jpg') }}">
+            <div class="desc-container">
+            <p class="desc">Upload Date- 13/04/2025</p> 
+            <p class="desc">Upload Time- 10.00.00AM</p>
+            <p class="desc">Result- Spill not found</p>
+            <button class="img-btn">
+              <img src="{{ url_for('static', filename='images/download.png') }}" alt="Download">
+            </button>
+          </div>
+          </div>
+          <div class="found"><img src="{{ url_for('static', filename='images/2.jpg') }}">
+            <div class="desc-container">
+            <p class="desc">Upload Date- 13/04/2025</p> 
+            <p class="desc">Upload Time- 10.05.00AM</p>
+            <p class="desc">Result- Spill found</p>
+            <button class="img-btn">
+              <img src="{{ url_for('static', filename='images/download.png') }}" alt="Download">
+            </button>
+          </div>
+          </div>
+          <div class="not-found"><img src="{{ url_for('static', filename='images/3.jpg') }}">
+            <div class="desc-container">
+            <p class="desc">Upload Date- 13/04/2025</p> 
+            <p class="desc">Upload Time- 10.10.00AM</p>
+            <p class="desc">Result- Spill not found</p>
+            <button class="img-btn">
+              <img src="{{ url_for('static', filename='images/download.png') }}" alt="Download">
+            </button>
+          </div>
+          </div>
+          <div class="found"><img src="{{ url_for('static', filename='images/4.jpg') }}">
+            <div class="desc-container">
+            <p class="desc">Upload Date- 13/04/2025</p> 
+            <p class="desc">Upload Time- 10.15.00AM</p>
+            <p class="desc">Result- Spill not found</p>
+            <button class="img-btn">
+              <img src="{{ url_for('static', filename='images/download.png') }}" alt="Download">
+            </button>
+          </div>
+          </div>
+          <div class="not-found"><img src="{{ url_for('static', filename='images/5.jpg') }}">
+            <div class="desc-container">
+            <p class="desc">Upload Date- 13/04/2025</p> 
+            <p class="desc">Upload Time- 10.20.00AM</p>
+            <p class="desc">Result- Spill not found</p>
+            <button class="img-btn">
+              <img src="{{ url_for('static', filename='images/download.png') }}" alt="Download">
+            </button>
+          </div>
+          </div>
+          <div class="signup">
+            <div class="cta-container">
+            <p class="cta">Want to store more history?</p> 
+            <p class="cta">Sign up for  a free account.</p>
+            <label class="signup-btn">Sign Up</label>
+          </div>
+          </div>
+        </div>        
+        </div>
+        </div>
+</body>
+</html>
