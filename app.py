@@ -3,6 +3,9 @@ from ultralytics import YOLO
 from PIL import Image
 import os
 import uuid
+import cv2
+import numpy as np
+
 
 app = Flask(__name__)
 
@@ -14,7 +17,7 @@ os.makedirs(PREDICT_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
-model = YOLO(r"C:/Users/muni8/OneDrive/Desktop/best.pt")
+model = YOLO(r"best.pt")
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -46,7 +49,31 @@ def upload_file():
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(filepath)
 
-            img = Image.open(filepath).convert("RGB")
+            def enhance_image_tls_kmeans(filepath, K=3):
+                img = cv2.imread(filepath)
+                hsv_img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+
+                stretched_hsv = np.zeros_like(hsv_img)
+                for i in range(3):
+                    channel = hsv_img[:, :, i]
+                    low_p = np.percentile(channel, 2)
+                    high_p = np.percentile(channel, 98)
+                    channel_clipped = np.clip(channel, low_p, high_p)
+                    stretched = ((channel_clipped - low_p) * 255 / (high_p - low_p))
+                    stretched_hsv[:, :, i] = stretched.astype(np.uint8)
+
+                Z = stretched_hsv.reshape((-1, 3)).astype(np.float32)
+            
+                criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
+                _, labels, centers = cv2.kmeans(Z, K, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS)
+            
+                centers = np.uint8(centers)
+                segmented_data = centers[labels.flatten()].reshape(hsv_img.shape)
+            
+                return segmented_data ## applying TLS first, and then Kmeans
+
+            #img = Image.open(filepath).convert("RGB")
+            img=enhance_image_tls_kmeans(filepath)
             results = model.predict(img)
             output_img_path = os.path.join(PREDICT_FOLDER, f"predicted_{filename}")
             results[0].save(filename=output_img_path)
