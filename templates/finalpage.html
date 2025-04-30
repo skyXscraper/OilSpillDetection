@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<meta charset="UTF-8">
+<html>
+    <title>Varunet</title>
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather&family=Inter&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/final.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="bg">
+        <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.82/build/spline-viewer.js"></script>
+        <spline-viewer url="https://prod.spline.design/nwcObotJIlEfARMC/scene.splinecode"></spline-viewer>
+    </div>
+    <div class="fg">
+        <nav class="navbar"> 
+            <div class="lol">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" class="logo"></img>        
+                <a class="title">Varunet</a>
+            </div>
+            
+        </nav>
+
+        <!-- Toggle Button for Sidebar -->
+        <button class="toggle-button" onclick="toggleSidebar()">☰</button>
+
+        <!-- Sidebar for uploaded images -->
+        <div class="sidebar" id="sidebar">
+            <h2>Uploaded Images</h2>
+            <ul id="imageHistory" class="image-history">
+                <!-- Uploaded images will be dynamically added here -->
+            </ul>
+        </div>
+
+        <div id="section1" class="fullscreen">   
+            <h1> AI powered ocean image scanning <br> for oil spill detection.</h1>
+            <div class="about-us">
+                <a class="microcopy">Oil spills are silent disasters—devastating marine life, damaging coastlines, and threatening biodiversity. Our project, "Varunet," takes a bold step toward solving this issue using the power of AI.</a>
+            </div>
+            <div class="btn-container">
+                <label class="btn" onclick="location.href='#section2'"><span>Try It</span></label> 
+            </div>  
+        </div> 
+
+        <div id="section2" class="screen2">
+            <h1>Try Now</h1>
+            <div class="upload-btn-container">
+                <input action="/upload" type="file" id="fileUpload" class="file-input" accept="image/*" method="POST">
+                <label for="fileUpload" class="btn" onclick="this.style.background='linear-gradient(to right, #0790C1, #093D70)'"><span>Upload Image</span></label> 
+            </div>
+            <div class="uploaded">
+                <h1> meh </h1>
+            </div>
+            <div class="processed"></div>    
+        </div>
+
+        <div class="microcopy-container"></div>
+        <div id="successModal" class="modal">
+            <div class="modal-content">
+                <label onclick="closeModal('successModal')" style="align-self: flex-end; margin-bottom: 20px;">✕</label>
+                <img class="modal-image" src="{{ url_for('static', filename='images/upload_success.png') }}">
+                <p>Image upload successful!</p>
+            </div>
+        </div>
+        <div id="errorModal" class="modal">
+            <div class="modal-content">
+                <label onclick="closeModal('errorModal')" style="align-self: flex-end; margin-bottom: 20px;">✕</label>
+                <img class="modal-image" src="{{ url_for('static', filename='images/upload_fail.png') }}">
+                <p id="errorMessage">Something went wrong.</p>
+                <p id="errorMessage">Please try again.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Open the modal by setting display to 'block'
+        function openModal(id) {
+            document.getElementById(id).style.display = "block";
+        }
+      
+        // Close the modal by setting display to 'none'
+        function closeModal(id) {
+            document.getElementById(id).style.display = "none";
+        }
+
+        // Toggle sidebar visibility
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open'); // Toggle the 'open' class
+        }
+      
+        // Handle file upload and display the result
+        let uploadedImages = []; // Array to store uploaded image data
+
+        document.getElementById('fileUpload').addEventListener('change', function () {
+            const file = this.files[0];
+            if (!file) return; // Exit if no file selected
+
+            const formData = new FormData();
+            formData.append('fileUpload', file); // Ensure this matches the Flask endpoint name
+
+            // Send the file to the server using fetch
+            fetch('http://127.0.0.1:5000/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    // If upload is successful, show the success modal
+                    openModal('successModal');
+
+                    // Add the uploaded image to the history
+                    const imageUrl = URL.createObjectURL(file);
+                    uploadedImages.push({ name: file.name, url: imageUrl });
+                    updateImageHistory();
+
+                } else {
+                    // If the upload fails, display the error modal with the error message
+                    return response.text().then(msg => {
+                        document.getElementById('errorMessage').textContent = msg;
+                        openModal('errorModal');
+                    });
+                }
+            })
+            .catch(error => {
+                // Catch any network or server errors
+                document.getElementById('errorMessage').textContent = "Upload failed: " + error;
+                openModal('errorModal');
+            });
+        });
+
+        // Function to update the image history in the sidebar
+        function updateImageHistory() {
+            const imageHistoryList = document.getElementById('imageHistory');
+            imageHistoryList.innerHTML = ''; // Clear existing list
+
+            uploadedImages.forEach((image, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <img src="${image.url}" alt="${image.name}">
+                    <span>${image.name}</span>
+                    <button onclick="removeImage(${index})">Remove</button>
+                `;
+                imageHistoryList.appendChild(li);
+            });
+        }
+
+        // Function to remove an image from the history
+        function removeImage(index) {
+            uploadedImages.splice(index, 1); // Remove the image from the array
+            updateImageHistory(); // Update the displayed history
+        }
+    </script>
+</body>
+</html>
