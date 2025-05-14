@@ -1,157 +1,332 @@
 <!DOCTYPE html>
-<meta charset="UTF-8">
-<html>
-    <title>Varunet</title>
+<html lang="en">
 <head>
-    <link href="https://fonts.googleapis.com/css2?family=Merriweather&family=Inter&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/final.css') }}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Varunet - Home</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kulim+Park:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend+Peta&family=Inter:wght@300;400;600&family=Koulen&display=swap">
+    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.93/build/spline-viewer.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html, body {
+    height: 100vh;
+    font-family: 'Inter', sans-serif;
+    background: black;
+    z-index: -3;
+    color: white;
+    overflow: hidden;
+}
+
+        
+        .content {
+            font-family: 'Kulim Park', sans-serif;
+
+            font-weight: 100;
+            font-size: 4.5rem;
+            color: white;
+
+
+        }
+
+        .bg-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 100%;
+            z-index: 0;
+        }
+
+        .spline-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4.5rem;
+            padding: 1.2rem 5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+        }
+
+        .logo-text {
+            font-family: 'Lexend Peta', sans-serif;
+            text-transform: uppercase;
+            font-weight: 400;
+            font-size: 1.6rem;
+            color: white;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-buttons a {
+            padding: 0.6rem 1.2rem;
+            text-decoration: none;
+            color: white;
+            border-radius: 12px;
+            background:transparent;
+            backdrop-filter: blur(6px);
+            transition: background 0.3s;
+            font-weight: 500;
+        }
+
+ 
+        .nav-buttons a:hover {
+            background:rgba(255, 255, 255, 0.1);
+        }
+
+        .scrollable-content {
+            position: relative;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 6rem 2rem 10rem;
+            z-index: 1;
+            scroll-behavior: smooth;
+        }
+
+        .hero-section {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero-section h1 {
+            font-size: 2.7rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero-section h2 {
+            font-size: 1.7rem;
+            margin-bottom: 1.5rem;
+            font-weight: 400;
+        }
+
+        .project-description {
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .project-description h3 {
+            margin-top: 1.5rem;
+            font-size: 1.7rem;
+            font-weight: 600;
+        }
+
+        .project-description ul {
+            margin-left: 1.5rem;
+            list-style-type: disc;
+        }
+
+        .bottom-cta {
+            display: flex;
+            justify-content: center;
+            margin-top: 3rem;
+            padding-bottom: 3rem;
+        }
+        .top-intro {
+  min-height: 5vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.intro-desc {
+  max-width: 700px;
+  margin: 1rem auto 0;
+  font-size: 1.7rem;
+  line-height: 1.6;
+}
+
+.feature-carousel-container {
+  overflow: hidden;
+  width: 130px;;
+  margin: 2rem 0;
+  
+  position: relative;
+}
+.features-carousel {
+    overflow: hidden;
+    width: 100%;
+    max-width: 900px;
+    margin: 3rem auto;
+    position: relative;
+    height: 300px; /* Increased height */
+}
+
+.carousel-track {
+    display: flex;
+    transition: transform 0.6s ease-in-out;
+    width: max-content;
+}
+
+.feature-box {
+    flex: 0 0 27%; /* Each box takes up 50% of the container width */
+    margin: 0.3rem ;/* No horizontal margin to fit exactly */
+    height: 240px; /* Adjusted height if you want it larger */
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(14px);
+    border-radius: 16px;
+    color: white;
+    font-size: 1.7rem;
+    font-weight: 500;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+
+@keyframes scrollFeatures {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.more-info {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 1rem;
+  font-size: 1.5rem;
+  line-height: 1.6;
+  text-align: center;
+}
+
+
+        .blur-box {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            padding: 1.5rem 2rem;
+            border-radius: 16px;
+            text-align: center;
+            font-size: 1.2rem;
+        }
+
+        .blur-box a {
+            display: inline-block;
+            margin-top: 0.5rem;
+            padding: 0.7rem 1.5rem;
+            background-color: white;
+            color: black;
+            font-size: 1.2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+
+            transition: background 0.3s;
+        }
+
+        .blur-box a:hover {
+            background-color: grey;
+            color: white;
+        }
+        /* Hide scrollbar for WebKit browsers (Chrome, Safari) */
+.scrollable-content::-webkit-scrollbar {
+    display: none;
+}
+
+/* Hide scrollbar for Firefox */
+.scrollable-content {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;  /* Internet Explorer 10+ */
+}
+
+    </style>
 </head>
 <body>
-    <div class="bg">
-        <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.82/build/spline-viewer.js"></script>
-        <spline-viewer url="https://prod.spline.design/nwcObotJIlEfARMC/scene.splinecode"></spline-viewer>
+    <div class="bg-container">
+        <spline-viewer url="https://prod.spline.design/Do4K6ULT1OveNJ8o/scene.splinecode" class="spline-background"></spline-viewer>
     </div>
-    <div class="fg">
-        <nav class="navbar"> 
-            <div class="lol">
-                <img src="{{ url_for('static', filename='images/logo.png') }}" class="logo"></img>        
-                <a class="title">Varunet</a>
-            </div>
-            
-        </nav>
-
-        <!-- Toggle Button for Sidebar -->
-        <button class="toggle-button" onclick="toggleSidebar()">☰</button>
-
-        <!-- Sidebar for uploaded images -->
-        <div class="sidebar" id="sidebar">
-            <h2>Uploaded Images</h2>
-            <ul id="imageHistory" class="image-history">
-                <!-- Uploaded images will be dynamically added here -->
-            </ul>
+    
+    <nav class="navbar">
+        <h1 class="logo-text">VARUNET</h1>
+        <div class="nav-buttons">
+            <a href="{{url_for('signup')}}">Try Now</a>
+            <a href="{{url_for('login')}}">Login</a>
+            <a href="{{url_for ('signup')}}">Signup</a>
         </div>
+    </nav>
+   
 
-        <div id="section1" class="fullscreen">   
-            <h1> AI powered ocean image scanning <br> for oil spill detection.</h1>
-            <div class="about-us">
-                <a class="microcopy">Oil spills are silent disasters—devastating marine life, damaging coastlines, and threatening biodiversity. Our project, "Varunet," takes a bold step toward solving this issue using the power of AI.</a>
-            </div>
-            <div class="btn-container">
-                <label class="btn" onclick="location.href='#section2'"><span>Try It</span></label> 
-            </div>  
-        </div> 
 
-        <div id="section2" class="screen2">
-            <h1>Try Now</h1>
-            <div class="upload-btn-container">
-                <input action="/upload" type="file" id="fileUpload" class="file-input" accept="image/*" method="POST">
-                <label for="fileUpload" class="btn" onclick="this.style.background='linear-gradient(to right, #0790C1, #093D70)'"><span>Upload Image</span></label> 
+    <div class="scrollable-content content">
+        
+            <section class="hero-section">
+              <!-- Top: Tagline and Intro -->
+              <div class="top-intro">
+                <h1>AI-Powered Ocean Image Scanning</h1>
+                <h2>Protecting marine life by detecting oil spills early</h2>
+                <p class="intro-desc">
+                  Varunet leverages deep learning to detect oil spills using satellite and drone imagery—ensuring faster response times and reduced ecological damage.
+                </p>
+              </div>
+              <div class="features-carousel">
+                <div class="carousel-track">
+                  <div class="feature-box">🌊 Real-time Detection</div>
+                  <div class="feature-box">📍 Accurate Spill Mapping</div>
+                  <div class="feature-box">🧠 Deep Learning Models</div>
+                  <div class="feature-box">📡 Satellite + Drone Imagery</div>
+                  <div class="feature-box">💡 Smart Environmental Insights</div>
+                </div>
+              
+              </div>
+              <!-- Below Features: Explanation Content -->
+              <div class="more-info">
+                <h3>Why Varunet?</h3>
+                <p>
+                  With cutting-edge algorithms trained on diverse marine datasets, Varunet can detect oil slicks even in complex oceanic environments. This empowers faster mitigation and protects thousands of marine species.
+                </p>
+              </div>
+         
+        
+            <div class="bottom-cta" id="bottom-try-now">
+                <div class="blur-box">
+                    <p>Experience the power of Varunet</p>
+                <a>Try Now</a>
+                </div>
             </div>
-            <div class="uploaded">
-                <h1> meh </h1>
-            </div>
-            <div class="processed"></div>    
-        </div>
-
-        <div class="microcopy-container"></div>
-        <div id="successModal" class="modal">
-            <div class="modal-content">
-                <label onclick="closeModal('successModal')" style="align-self: flex-end; margin-bottom: 20px;">✕</label>
-                <img class="modal-image" src="{{ url_for('static', filename='images/upload_success.png') }}">
-                <p>Image upload successful!</p>
-            </div>
-        </div>
-        <div id="errorModal" class="modal">
-            <div class="modal-content">
-                <label onclick="closeModal('errorModal')" style="align-self: flex-end; margin-bottom: 20px;">✕</label>
-                <img class="modal-image" src="{{ url_for('static', filename='images/upload_fail.png') }}">
-                <p id="errorMessage">Something went wrong.</p>
-                <p id="errorMessage">Please try again.</p>
-            </div>
-        </div>
+        </section>
     </div>
-
     <script>
-        // Open the modal by setting display to 'block'
-        function openModal(id) {
-            document.getElementById(id).style.display = "block";
-        }
-      
-        // Close the modal by setting display to 'none'
-        function closeModal(id) {
-            document.getElementById(id).style.display = "none";
-        }
-
-        // Toggle sidebar visibility
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('open'); // Toggle the 'open' class
-        }
-      
-        // Handle file upload and display the result
-        let uploadedImages = []; // Array to store uploaded image data
-
-        document.getElementById('fileUpload').addEventListener('change', function () {
-            const file = this.files[0];
-            if (!file) return; // Exit if no file selected
-
-            const formData = new FormData();
-            formData.append('fileUpload', file); // Ensure this matches the Flask endpoint name
-
-            // Send the file to the server using fetch
-            fetch('http://127.0.0.1:5000/upload', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => {
-                if (response.ok) {
-                    // If upload is successful, show the success modal
-                    openModal('successModal');
-
-                    // Add the uploaded image to the history
-                    const imageUrl = URL.createObjectURL(file);
-                    uploadedImages.push({ name: file.name, url: imageUrl });
-                    updateImageHistory();
-
-                } else {
-                    // If the upload fails, display the error modal with the error message
-                    return response.text().then(msg => {
-                        document.getElementById('errorMessage').textContent = msg;
-                        openModal('errorModal');
-                    });
-                }
-            })
-            .catch(error => {
-                // Catch any network or server errors
-                document.getElementById('errorMessage').textContent = "Upload failed: " + error;
-                openModal('errorModal');
-            });
-        });
-
-        // Function to update the image history in the sidebar
-        function updateImageHistory() {
-            const imageHistoryList = document.getElementById('imageHistory');
-            imageHistoryList.innerHTML = ''; // Clear existing list
-
-            uploadedImages.forEach((image, index) => {
-                const li = document.createElement('li');
-                li.innerHTML = `
-                    <img src="${image.url}" alt="${image.name}">
-                    <span>${image.name}</span>
-                    <button onclick="removeImage(${index})">Remove</button>
-                `;
-                imageHistoryList.appendChild(li);
-            });
-        }
-
-        // Function to remove an image from the history
-        function removeImage(index) {
-            uploadedImages.splice(index, 1); // Remove the image from the array
-            updateImageHistory(); // Update the displayed history
-        }
+        const track = document.querySelector('.carousel-track');
+        const boxes = document.querySelectorAll('.feature-box');
+        const totalBoxes = boxes.length;
+        const itemsPerSlide = 2;
+    
+        let index = 0;
+    
+        setInterval(() => {
+            index += itemsPerSlide;
+            if (index >= totalBoxes) {
+                index = 0;
+            }
+            const slideWidth = boxes[0].offsetWidth ; // box width + margin (0.5rem * 2 = 16px)
+            track.style.transform = `translateX(-${index * slideWidth}px)`;
+        }, 3000);
     </script>
+    
 </body>
 </html>

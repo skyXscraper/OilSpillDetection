@@ -1,58 +1,129 @@
-from flask import Flask, render_template, request, jsonify, url_for
+from flask import Flask, render_template, request, jsonify, send_from_directory
 from ultralytics import YOLO
-from PIL import Image
 import os
 import uuid
+import urllib.request
+from PIL import Image
+import io
+from flask import url_for, session, redirect
+from flask_sqlalchemy import SQLAlchemy
 import cv2
+from dotenv import load_dotenv
 import numpy as np
-
+import cloudinary.uploader
+import re
 
 app = Flask(__name__)
+app.secret_key = 'key1'
 
-UPLOAD_FOLDER = 'static/uploads'
-PREDICT_FOLDER = 'static/predicted'
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-os.makedirs(PREDICT_FOLDER, exist_ok=True)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:chandu123@localhost/varunet'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+db = SQLAlchemy(app)
 
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
-model = YOLO(r"best.pt")
+class User(db.Model):
+    __tablename__ = 'user'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    email = db.Column(db.String(255), unique=True, nullable=False)
+    password = db.Column(db.String(255), nullable=False)
+    images = db.relationship('Image', backref='user', lazy=True, cascade="all, delete-orphan")
 
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+class Image(db.Model):
+    __tablename__ = 'images'
+    img_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    id = db.Column(db.Integer, db.ForeignKey('user.id', onupdate="CASCADE", ondelete="CASCADE"), nullable=False)
+    user_img_url = db.Column(db.Text, nullable=False)
+    processed_img_url = db.Column(db.Text, nullable=False)
+
+def initialize_database():
+    with app.app_context():
+        db.create_all()
+
+load_dotenv()
+cloudinary.config(
+    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.getenv("CLOUDINARY_API_KEY"),
+    api_secret=os.getenv("CLOUDINARY_API_SECRET")
+)
+
+model = YOLO(r"C:\Users\muni8\OneDrive\Desktop\best.pt")  
 
 @app.route('/')
 def home():
-    return render_template('home.html')
+    return render_template('finalpage.html')
 
-@app.route('/history')
-def history():
-    return render_template('history.html')
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    msg = ''
+    if request.method == 'POST' and 'email' in request.form and 'password' in request.form:
+        email = request.form['email']
+        password = request.form['password']
 
-@app.route('/about')
-def about():
-    return render_template('about.html')
+        # Query user using SQLAlchemy
+        user = User.query.filter_by(email=email, password=password).first()
+        
+        if user:
+            session['loggedin'] = True
+            session['id'] = user.id
+            session['email'] = user.email
+            
+            return redirect(url_for('upload'))
+        else:
+            msg = 'Incorrect email or password'
+    return render_template('login.html', msg=msg)
 
-@app.route('/upload', methods=['POST'])
-def upload_file():
-    if 'fileUpload' not in request.files:
-        return jsonify(status='error', message='No file part'), 400
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('login'))
 
-    file = request.files['fileUpload']
-    if file.filename == '':
-        return jsonify(status='error', message='No selected file'), 400
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    msg = ''
+    if request.method == 'POST' and 'email' in request.form and 'password' in request.form:
+        email = request.form['email']
+        password = request.form['password']
+    
+        # Check if user exists using SQLAlchemy
+        existing_user = User.query.filter_by(email=email).first()
+        
+        if existing_user: 
+            msg = 'Account already exists'
+        elif not re.match(r'[^@]+@[^@]+\.[^@]+', email):
+            msg = 'Invalid email'
+        else:
+            # Create new user with SQLAlchemy
+            new_user = User(email=email, password=password)
+            db.session.add(new_user)
+            db.session.commit()
+            
+            msg = f'Account created successfully. Please log in with your email: {email}'
+            return redirect(url_for('login')) 
+    elif request.method == 'POST':
+        msg = 'Please fill in all fields'
+    return render_template('signup.html', msg=msg)   
 
-    if file and allowed_file(file.filename):
-        try:
-            filename = f"{uuid.uuid4().hex}_{file.filename}"
-            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file.save(filepath)
+def read_image_from_url(url):
+    with urllib.request.urlopen(url) as response:
+        image_data = response.read()
+    img_array = np.array(Image.open(io.BytesIO(image_data)).convert('RGB'))
+    img_cv2 = cv2.cvtColor(img_array, cv2.COLOR_RGB2BGR)
+    return img_cv2
 
-            def enhance_image_tls_kmeans(filepath, K=3):
-                img = cv2.imread(filepath)
+@app.route('/upload', methods=['GET', 'POST'])
+def upload():
+    if request.method == 'POST':
+        f = request.files['image']
+        if f:
+            res = cloudinary.uploader.upload(f.stream)
+            image_url = res['secure_url']
+
+            f.stream.seek(0)
+            file_bytes = np.frombuffer(f.read(), np.uint8)
+            img = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
+
+            def enhance_image_tls_kmeans(img, K=3):
                 hsv_img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-
                 stretched_hsv = np.zeros_like(hsv_img)
                 for i in range(3):
                     channel = hsv_img[:, :, i]
@@ -63,30 +134,64 @@ def upload_file():
                     stretched_hsv[:, :, i] = stretched.astype(np.uint8)
 
                 Z = stretched_hsv.reshape((-1, 3)).astype(np.float32)
-            
                 criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
                 _, labels, centers = cv2.kmeans(Z, K, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS)
-            
                 centers = np.uint8(centers)
                 segmented_data = centers[labels.flatten()].reshape(hsv_img.shape)
-            
-                return segmented_data ## applying TLS first, and then Kmeans
+                return segmented_data
+            processed_img = enhance_image_tls_kmeans(img)
 
-            #img = Image.open(filepath).convert("RGB")
-            img=enhance_image_tls_kmeans(filepath)
-            results = model.predict(img)
-            output_img_path = os.path.join(PREDICT_FOLDER, f"predicted_{filename}")
-            results[0].save(filename=output_img_path)
+            results = model(processed_img)[0]
+            rendered_img = results.plot()  # NumPy array with boxes
 
-            return jsonify(
-                status='success',
-                message='Upload and prediction successful!',
-                prediction_url=url_for('static', filename=f'predicted/predicted_{filename}')
-            ), 200
-        except Exception as e:
-            return jsonify(status='error', message=f'Failed to save file: {e}'), 500
+            # Upload rendered image to Cloudinary
+            _, buffer = cv2.imencode('.jpg', rendered_img)                
+            img_bytes = io.BytesIO(buffer)
+            processed_result = cloudinary.uploader.upload(img_bytes.getvalue())
+            processed_img_url = processed_result['secure_url']
 
-    return jsonify(status='error', message='Invalid file type'), 400
+            user_id = session.get('id')
+            if user_id:
+                # Store image using SQLAlchemy
+                new_image = Image(id=user_id, user_img_url=image_url, processed_img_url=processed_img_url)
+                db.session.add(new_image)
+                db.session.commit()
+                
+                return redirect(url_for('dashboard', item=0))  # show latest image by default
 
-if __name__ == '__main__':
+            else:
+                return "User not logged in", 403
+
+    return render_template('dashboard.html')
+
+@app.route('/dashboard')
+def dashboard():
+    if 'id' not in session:
+        return redirect(url_for('login'))
+
+    user_id = session['id']
+    all_images = Image.query.filter_by(id=user_id).order_by(Image.img_id.desc()).all()
+
+    item_index = request.args.get("item", default="0")
+    try:
+        item_index = int(item_index)
+        if item_index < 0 or item_index >= len(all_images):
+            item_index = 0
+    except:
+        item_index = 0
+
+    if not all_images:
+        return render_template('dashboard.html', history=[], user_img_url=None, output_img_url=None, selected_index=None)
+
+    selected = all_images[item_index]
+
+    return render_template('dashboard.html',
+                           history=all_images,
+                           user_img_url=selected.user_img_url,
+                           output_img_url=selected.processed_img_url,
+                           selected_index=item_index)
+
+
+if __name__ == "__main__":
+    initialize_database() 
     app.run(debug=True)

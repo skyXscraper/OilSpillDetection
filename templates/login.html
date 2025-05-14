@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Varunet - Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kulim+Park:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend+Peta&family=Inter:wght@300;400;600&family=Koulen&display=swap">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html, body {
+            height: 100vh;
+            font-family: 'Inter', sans-serif;
+            background: black;
+            color: white;
+            overflow: hidden;
+        }
+
+        .bg-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 100%;
+            z-index: 0;
+        }
+
+        .spline-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .login-box {
+            position: relative;
+            z-index: 10;
+            background: transparent;
+            backdrop-filter: blur(7px);
+            padding: 2rem 3rem;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 400px;
+            margin: 100px auto;
+        }
+
+        .login-box h2 {
+            font-family: 'Lexend Peta', sans-serif;
+            text-transform: uppercase;
+            font-weight: 400;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            color: white;
+        }
+
+        .login-box form input {
+    width: 100%;
+    padding: 1rem;
+    margin: 10px 0;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    font-size: 1.2rem;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(8px);
+    color: white;
+    transition: border 0.3s ease;
+}
+
+.login-box form input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.login-box form input:focus {
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    outline: none;
+}
+
+.login-box form button {
+    width: 100%;
+    padding: 1rem;
+    background: transparent;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    font-weight: 500;
+    font-size: 1.2rem;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.3s, border 0.3s;
+}
+
+.login-box form button:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+
+        .msg {
+            color: red;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .signup-link {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .signup-link a {
+            color: white;
+            text-decoration: none;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4.5rem;
+            padding: 1rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+        }
+
+        .logo-text {
+            font-family: 'Lexend Peta', sans-serif;
+            text-transform: uppercase;
+            font-weight: 400;
+            font-size: 1.6rem;
+            color: white;
+        }
+
+        .nav-buttons a {
+            padding: 0.6rem 1.2rem;
+            text-decoration: none;
+            color: white;
+            border-radius: 12px;
+            background: transparent;
+            backdrop-filter: blur(6px);
+            transition: background 0.3s;
+            font-weight: 500;
+        }
+
+        .nav-buttons a:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-container">
+        <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.94/build/spline-viewer.js"></script>
+<spline-viewer url="https://prod.spline.design/U9WzfpzOz6208UOf/scene.splinecode"></spline-viewer>
+    </div>
+    
+    <nav class="navbar">
+        <h1 class="logo-text">VARUNET</h1>
+        <div class="nav-buttons">
+            <a href="#">Home</a>
+            <a href="{{url_for('signup')}}">Signup</a>
+        </div>
+    </nav>
+    
+
+    <div class="login-box">
+        <h2>Login to Varunet</h2>
+        {% if msg %}
+        <div class="msg">{{ msg }}</div>
+        {% endif %}
+        <form method="POST" action="{{ url_for('login') }}">
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <button type="submit">Login</button>
+        </form>
+        <div class="signup-link">
+            Don't have an account? <a href="{{ url_for('signup') }}">Sign up here</a>
+        </div>
+    </div>
+</body>
+</html>

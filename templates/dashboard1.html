@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Varunet - Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='s.css') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Lexend+Peta&family=Kulim+Park:wght@300;400;600&display=swap" rel="stylesheet">
+  <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.82/build/spline-viewer.js"></script>
+  <style>
+    body {
+      font-family: 'Kulim Park', sans-serif;
+      background-color: #000;
+      color: #fff;
+      height: 100vh;
+      overflow: hidden;
+      margin: 0;
+    }
+
+ 
+    .spline-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+    .page-container {
+      display: flex;
+      height: 100%;
+      z-index:1;
+    }
+
+    .sidebar {
+      width: 250px;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      box-shadow: 2px 0 12px rgba(0, 0, 0, 0.5);
+      border-right: 1px solid rgba(255, 255, 255, 0.1);
+      z-index:2;
+    }
+
+    .logo-text {
+      font-family: 'Lexend Peta', sans-serif;
+      text-transform: uppercase;
+      font-weight: 400;
+      font-size: 1.6rem;
+      color: white;
+      margin-bottom: 20px;
+    }
+
+    .main-content {
+      flex: 1;
+      padding: 40px;
+      overflow-y: auto;
+      z-index:3;
+    }
+
+    .upload-section {
+      margin-bottom: 40px;
+    }
+
+    .upload-section h1 {
+      font-size: 28px;
+      margin-bottom: 20px;
+    }
+
+    .upload-btn {
+      background-color: transparent;
+      color: white;
+      padding: 10px 20px;
+      border: 1px solid white;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .upload-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .image-display {
+      display: flex;
+      gap: 30px;
+      margin-top: 40px;
+      flex-wrap: wrap;
+    }
+
+    .image-box {
+      flex: 1 1 45%;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 20px;
+      border-radius: 12px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+
+    .image-box h3 {
+      margin-bottom: 15px;
+    }
+    /* Add this to your existing style section */
+.sidebar a {
+  text-decoration: none;
+  display: block;
+  padding: 6px 0;
+  color: white;
+  transition: color 0.3s ease;
+}
+
+.sidebar a.selected {
+  color: #66FCF1;
+}
+
+    .image-box img {
+      width: 100%;
+      max-height: 400px;
+      object-fit: contain;
+      border-radius: 10px;
+    }
+
+    .logout-link {
+      display: inline-block;
+      margin-top: 20px;
+      color: #ff5c5c;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .logout-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <spline-viewer class="spline-background" url="https://prod.spline.design/XBvZbLKW7fuIzMGe/scene.splinecode"></spline-viewer>
+
+  <!-- Page Container -->
+  <div class="page-container">
+
+    <!-- Sidebar -->
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="logo-text">Varunet</div>
+      
+      <h3 style="font-size: 1rem; color: #ccc;">History</h3>
+   <!-- Inside the loop for history links -->
+<ul style="list-style: none; padding: 0;">
+  {% for item in history %}
+    <li>
+      <a href="{{ url_for('dashboard') }}?item={{ loop.index0 }}"
+         class="{% if loop.index0 == selected_index %}selected{% endif %}">
+        {{ loop.index }}
+      </a>
+    </li>
+  {% endfor %}
+</ul>
+
+  
+  
+      <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="upload-section">
+        <h1>Upload Another Image</h1>
+        <form action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data">
+          <input type="file" name="image" accept="image/*" required>
+          <button type="submit" class="upload-btn">Upload & Process</button>
+        </form>
+      </div>
+
+      <div class="image-display">
+        {% if user_img_url and output_img_url %}
+        <div class="image-box">
+          <h3>Original Image</h3>
+          <img src="{{ user_img_url }}" alt="Original uploaded image">
+        </div>
+        <div class="image-box">
+          <h3>Processed Image</h3>
+          <img src="{{ output_img_url }}" alt="Processed image result">
+        </div>
+        {% else %}
+        <p>No image uploaded yet. Upload one to see results.</p>
+        {% endif %}
+      </div>
+    </div>
+
+  </div> <!-- End page-container -->
+
+</body>
+</html>

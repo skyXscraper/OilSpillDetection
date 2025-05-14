@@ -1,0 +1,9 @@
+Flask
+Flask-MySQLdb
+mysqlclient
+Pillow
+opencv-python
+ultralytics
+python-dotenv
+cloudinary
+numpy
