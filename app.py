@@ -13,9 +13,10 @@ import numpy as np
 import cloudinary.uploader
 import re
 
+load_dotenv()
 app = Flask(__name__)
 app.secret_key = 'key1'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://chandu8325:suspense123@chandu8325.mysql.pythonanywhere-services.com/chandu8325$varunet'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 
@@ -39,7 +40,7 @@ def initialize_database():
     with app.app_context():
         db.create_all()
 
-load_dotenv()
+
 cloudinary.config(
     cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
     api_key=os.getenv("CLOUDINARY_API_KEY"),
