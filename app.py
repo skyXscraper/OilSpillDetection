@@ -15,9 +15,9 @@ import re
 
 app = Flask(__name__)
 app.secret_key = 'key1'
-
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:chandu123@localhost/varunet'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://chandu8325:suspense123@chandu8325.mysql.pythonanywhere-services.com/chandu8325$varunet'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 
 db = SQLAlchemy(app)
 
@@ -46,7 +46,7 @@ cloudinary.config(
     api_secret=os.getenv("CLOUDINARY_API_SECRET")
 )
 
-model = YOLO(r"C:\Users\muni8\OneDrive\Desktop\best.pt")  
+model = YOLO(r"best.pt")  
 
 @app.route('/')
 def home():
